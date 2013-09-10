@@ -22,12 +22,12 @@ plot(sf.STA);
 ```
 
 ## Code base used in:
-__Jan Clemens__, Sandra Wohlgemuth, Bernhard Ronacher  
+Jan Clemens, Sandra Wohlgemuth, Bernhard Ronacher  
 Nonlinear computations underlying temporal and population sparseness in the auditory system of the grasshopper  
-[__2012__, __Journal of Neuroscience__, 32(29):10053-10062](http://www.jneurosci.org/content/32/29/10053.abstract) | [pdf](http://www.princeton.edu/~janc/pdf/clemens_2012_nonlinear.pdf)
+[_2012_, Journal of Neuroscience, 32(29):10053-10062](http://www.jneurosci.org/content/32/29/10053.abstract) | [pdf](http://www.princeton.edu/~janc/pdf/clemens_2012_nonlinear.pdf)
 
-__Jan Clemens__, Olaf Kutzki, Bernhard Ronacher, Susanne Schreiber, Sandra Wohlgemuth   
+Jan Clemens, Olaf Kutzki, Bernhard Ronacher, Susanne Schreiber, Sandra Wohlgemuth   
 Efficient transformation of an auditory population code  
-[__2011__, __PNAS__, 108:13812-13817](http://www.pnas.org/cgi/doi/10.1073/pnas.1104506108) | [pdf](http://www.princeton.edu/~janc/pdf/clemens_2011_efficient.pdf)
+[_2011_, PNAS, 108:13812-13817](http://www.pnas.org/cgi/doi/10.1073/pnas.1104506108) | [pdf](http://www.princeton.edu/~janc/pdf/clemens_2011_efficient.pdf)
 
 
