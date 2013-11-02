@@ -25,7 +25,7 @@ classdef FeaturesMLlinBasis < FeaturesML
             h = self.h;
          end
          self.h0 = h(1);
-         self.h1 = h(2:size(self.basis1D,1)+1)'*self.basis1D;
+         self.h1 = h(1 + (1:size(self.basis1D,1)))'*self.basis1D;
       end
       
       function kernel2coef(self,varargin)
@@ -37,7 +37,7 @@ classdef FeaturesMLlinBasis < FeaturesML
             h1 = self.h1;
          end
          
-         self.h(2:end) = h1;
+         self.h(1 + (1:size(self.basis1D,1)),1) = h1*self.basis1D';
       end
       
       
