@@ -7,6 +7,7 @@ classdef FeaturesML < Features
       pred, perf
       predTest, perfTest
       basis1D, basis2D, basisPrj
+      khat
    end
    
    methods (Abstract)
@@ -46,11 +47,11 @@ classdef FeaturesML < Features
 %                [self.regH, self.regFitInfo] = lasso(self.SSraw(trainIdx,:), self.Resp(trainIdx), 'Options', opts, 'alpha', alpha, 'NumLambda', 64, 'CV', 4);
 %                lamOpt = self.regFitInfo.Index1SE;
 %                self.h = self.regH(:,lamOpt);
-               kRidge = runRidgeOnly(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
-               self.h = kRidge;
+               self.khat = runRidgeOnly(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
+               self.h = self.khat;
             case 3 % ALDsf
-               khatALD = runALD(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
-               self.h = khatALD.khatSF;
+               self.khat = runALD(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
+               self.h = self.khat.khatSF;
             otherwise % standard least squares
                self.h = pinv(self.SSraw(trainIdx,:))*self.Resp(trainIdx);
          end

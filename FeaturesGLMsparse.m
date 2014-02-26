@@ -6,6 +6,7 @@ classdef FeaturesGLMsparse < Features
       fit
       pred, perf
       RRraw
+      h0, h1
       
    end
    
@@ -47,6 +48,8 @@ classdef FeaturesGLMsparse < Features
          self.fit = cvglmfitsparseprior(y,X,U,getcvfolds(length(y),5),'modeltype','ls');
          feat = self.basis*self.whitener*self.fit.w;% unwhiten and project onto basis
          self.feat = [self.fit.u; feat];% add bias term
+         self.h0 = self.fit.u;% bias term
+         self.h1 = feat;% add bias term
          self.pred = X*self.fit.w + U*self.fit.u;% predict
          self.perf = rsq(self.pred, self.Resp);% performance
       end
