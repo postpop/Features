@@ -5,21 +5,25 @@ classdef FeaturesMLquadBasisHist < FeaturesML
       
       function self = FeaturesMLquadBasisHist(sr,n)
          self = self@FeaturesML(sr,n);
-         self.RRrawDelay = 5;
+         self.RRrawDelay = 2;
+         self.RRrawDeltaT = 3;
          self.getSTEML()
       end
       
       function getSTEML(self)
          self.getSTE();             % get standard STE
-         self.RRraw = makeStimRows(self.Resp, self.n+self.RRrawDelay);
-         self.RRraw = self.RRraw(:,1:end-self.RRrawDelay);
+         self.RRraw = makeStimRows(self.Resp, self.RRrawDeltaT*self.n+self.RRrawDelay);
+         self.RRraw = self.RRraw(:,1:self.RRrawDeltaT:end-self.RRrawDelay);
          self.getBasis2D();         % get basis
          %self.getBasis1D();
          %self.respBasis = self.basis1D;
          self.getBasis1D();
+         SSprj = (self.SSraw*self.basis1D')';
          self.prj2Basis();          % prj all stc onto that basis
          
-         self.SSraw = [ones(size(self.SSraw(:,1)))'; (self.SSraw*self.basis1D')'; self.basisPrj; (self.RRraw*self.basis1D')']';
+         self.getBasis1D(size(self.RRraw,2));
+         RRprj = (self.RRraw*self.basis1D')';
+         self.SSraw = [ones(size(self.SSraw(:,1)))'; SSprj; self.basisPrj; RRprj]';
       end
       
       

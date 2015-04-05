@@ -3,9 +3,9 @@ classdef FeaturesML < Features
    properties
       h, h0, h1, h2, hHist
       regH, regFitInfo
-      RRraw, RRrawDelay
+      RRraw, RRrawDelay, RRrawDeltaT
       pred, perf
-      predTest, perfTest
+      perfTest, perfTrain
       basis1D, basis2D, basisPrj
       khat
    end
@@ -30,11 +30,14 @@ classdef FeaturesML < Features
       
       function getFeat(self, varargin)
          % getFeat([mode=0, trainIdx=all idx])
+         % trainIdx==1 - use for training
+         % trainIdx==0 - use for testing
+         % otherwise   - ignore
          regMode = 0;
          if nargin>1
             regMode = varargin{1};
          end
-         trainIdx = true(size(self.Resp));
+         trainIdx = ones(size(self.Resp));
          if nargin>2
             trainIdx = varargin{2};
          end
@@ -43,35 +46,41 @@ classdef FeaturesML < Features
             case {1, 2} % ridge or lasso
 %                opts = statset('UseParallel','always');
 %                % parameter ALPHA interpolates between ridge (0) and lasso (1)
-%                if regMode == 1, alpha = 0.001; else alpha = 1; end
-%                [self.regH, self.regFitInfo] = lasso(self.SSraw(trainIdx,:), self.Resp(trainIdx), 'Options', opts, 'alpha', alpha, 'NumLambda', 64, 'CV', 4);
-%                lamOpt = self.regFitInfo.Index1SE;
-%                self.h = self.regH(:,lamOpt);
-               self.khat = runRidgeOnly(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
+%                 if regMode == 1, alpha = 0.001; else alpha = 1; end
+%                 [self.regH, self.regFitInfo] = lasso(self.SSraw(trainIdx,:), self.Resp(trainIdx), 'Options', opts, 'alpha', alpha, 'NumLambda', 64, 'CV', 4);
+%                 lamOpt = self.regFitInfo.Index1SE;
+%                 self.h = self.regH(:,lamOpt);
+               self.khat = runRidgeOnly(self.SSraw(trainIdx==1,:), self.Resp(trainIdx==1), size(self.SSraw,2), 1);
                self.h = self.khat;
             case 3 % ALDsf
-               self.khat = runALD(self.SSraw(trainIdx,:), self.Resp(trainIdx), size(self.SSraw,2), 1);
+               self.khat = runALD(self.SSraw(trainIdx==1,:), self.Resp(trainIdx==1), size(self.SSraw,2), 1);
                self.h = self.khat.khatSF;
+            case 4 % sparse GLM
             otherwise % standard least squares
-               self.h = pinv(self.SSraw(trainIdx,:))*self.Resp(trainIdx);
+               self.h = pinv(self.SSraw(trainIdx==1,:))*self.Resp(trainIdx==1);
          end
          
          % rearrange kernels to get terms corr. to diff. orders
          self.coef2kernel();
          % prediction
          self.pred = self.SSraw*self.h;
-         self.perf = rsq(self.pred(trainIdx), self.Resp(trainIdx));
-         self.perfTest = rsq(self.pred(~trainIdx), self.Resp(~trainIdx));
+         self.perf = rsq(self.pred, self.Resp);
+         self.perfTrain = rsq(self.pred(trainIdx==1), self.Resp(trainIdx==1));
+         self.perfTest = rsq(self.pred(trainIdx==0), self.Resp(trainIdx==0));
          self.feat = self.h;
       end
       
-      function getBasis1D(self)
-         xs = size(self.SSraw,2);
+      function getBasis1D(self, varargin)
+         if nargin==2
+            xs = varargin{1};
+         else
+            xs = size(self.SSraw,2);
+         end
          sigma = 2;
          X = 1:xs;
-         nBasis = self.n/2;%self.n/2;
+         nBasis = self.n/2;
          
-         self.basis1D = zeros(nBasis, size(self.SSraw,2));
+         self.basis1D = zeros(nBasis, xs);
          cnt = 0;
          xpts = linspace(0,xs,nBasis);
          for xidx = 1:length(xpts)
@@ -82,6 +91,14 @@ classdef FeaturesML < Features
             cnt = cnt+1;
             self.basis1D(cnt,:) = nps;
          end
+      end
+      
+      function getNLbasis1D(self)
+         kbaspr.neye = 0;
+         kbaspr.ncos = round(self.n/16);
+         kbaspr.kpeaks = round([5 self.n*.7]);
+         kbaspr.b = 128/50;
+         self.basis1D = makeBasis_StimKernel(kbaspr,self.n)';
       end
       
       function getBasis2D(self)

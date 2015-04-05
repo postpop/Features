@@ -5,12 +5,13 @@ classdef FeaturesMLlinBasis < FeaturesML
       
       function self = FeaturesMLlinBasis(sr,n)
          self = self@FeaturesML(sr,n);
-         self.getSTEML()
+         self.getBasis1D();
+         self.getSTEML();
+         
       end
       
       function getSTEML(self)
          self.getSTE();             % get standard STE
-         self.getBasis1D();
          
          self.SSraw = [ones(size(self.SSraw(:,1)))'; (self.SSraw*self.basis1D')' ]';
       end
